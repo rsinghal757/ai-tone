@@ -11,7 +11,7 @@ AiTone is an interactive web application that allows you to create and modify mu
 
 ## Live Demo
 
-Visit [ai-tone.vercel.app](https://ai-tone.vercel.app) to try it out!
+Visit [aitone.netlify.app](https://aitone.netlify.app) to try it out!
 
 ## Local Development
 
@@ -24,22 +24,32 @@ Visit [ai-tone.vercel.app](https://ai-tone.vercel.app) to try it out!
    ```
    OPENAI_API_KEY=your_openai_api_key
    MODEL=google/gemini-flash-1.5
-   PORT=3000
    ```
-4. Start the server:
+4. Start the development server with Netlify CLI:
    ```
-   npm start
+   npm run dev
    ```
-5. Open `http://localhost:3000` in your browser
+5. Open `http://localhost:8888` in your browser
 
-## Deploying to Vercel
+## Deploying to Netlify
 
 1. Fork this repository
-2. Create a new project in Vercel and connect it to your forked repository
-3. Add the following environment variables in the Vercel project settings:
+2. Create a new site in Netlify and connect it to your forked repository
+3. Add the following environment variables in the Netlify site settings:
    - `OPENAI_API_KEY`: Your OpenAI API key
    - `MODEL`: The model to use (e.g., `google/gemini-flash-1.5`)
-4. Deploy the project
+4. Deploy the site
+
+### Netlify Deployment Steps
+
+1. Sign up for a free Netlify account at [netlify.com](https://www.netlify.com/)
+2. Click "Add new site" > "Import an existing project"
+3. Connect to your GitHub repository
+4. Configure the build settings:
+   - Build command: `npm run build`
+   - Publish directory: `.`
+5. Click "Show advanced" and add your environment variables
+6. Click "Deploy site"
 
 ## How It Works
 
@@ -53,16 +63,14 @@ Visit [ai-tone.vercel.app](https://ai-tone.vercel.app) to try it out!
 
 - [Tone.js](https://tonejs.github.io/) - Web Audio framework
 - [Monaco Editor](https://microsoft.github.io/monaco-editor/) - Code editor
-- [Express](https://expressjs.com/) - Web server
+- [Netlify Functions](https://www.netlify.com/products/functions/) - Serverless backend
 - [OpenAI API](https://openai.com/) - AI code generation
-- [Vercel](https://vercel.com/) - Deployment platform
 
 ## Project Structure
 
 - `index.html` - The main web interface
-- `server.js` - Express server for handling API requests
-- `utils/scraper.js` - Utility for scraping Tone.js documentation
-- `data/tone-docs.txt` - Processed Tone.js documentation for the AI system prompt
+- `netlify/functions/` - Serverless functions for API endpoints
+- `netlify.toml` - Netlify configuration
 
 ## License
 
