@@ -1,0 +1,89 @@
+# Tone.js Documentation
+
+## Overview
+Tone.js is a Web Audio framework for creating interactive music in the browser. It provides high-level abstractions for working with audio, including synthesizers, effects, scheduling, and more.
+
+## Key Classes
+
+### Tone.Synth
+A basic synthesizer with a single oscillator and an amplitude envelope.
+
+Key methods:
+- triggerAttackRelease: Trigger the attack and then the release after the duration.
+- triggerAttack: Start the attack portion of the envelope.
+- triggerRelease: Start the release portion of the envelope.
+
+### Tone.Transport
+Transport for timing musical events. Supports tempo curves and time changes.
+
+Key methods:
+- start: Start the transport.
+- stop: Stop the transport.
+- schedule: Schedule an event along the timeline.
+
+### Tone.Loop
+Create a looped callback at the specified interval.
+
+Key methods:
+- start: Start the loop at the specified time.
+- stop: Stop the loop at the specified time.
+- dispose: Clean up.
+
+### Tone.Player
+A buffer player with transport sync, loop, and playbackRate controls.
+
+Key methods:
+- start: Start the player.
+- stop: Stop the player.
+- load: Load the audio file as a buffer.
+
+### Tone.Effect
+The base class for all effects.
+
+Key methods:
+- toDestination: Connect the effect to the destination.
+- connect: Connect the effect to another node.
+- dispose: Clean up.
+
+## Examples
+
+### Simple Synth
+Play a simple melody with a synth.
+
+```javascript
+const synth = new Tone.Synth().toDestination();
+synth.triggerAttackRelease("C4", "8n");
+```
+
+### Using Transport
+Schedule events using the Transport.
+
+```javascript
+const synth = new Tone.Synth().toDestination();
+Tone.Transport.schedule((time) => {
+  synth.triggerAttackRelease("C4", "8n", time);
+}, "0:0:0");
+Tone.Transport.schedule((time) => {
+  synth.triggerAttackRelease("E4", "8n", time);
+}, "0:0:2");
+Tone.Transport.start();
+```
+
+### Creating a Loop
+Create a repeating pattern.
+
+```javascript
+const synth = new Tone.Synth().toDestination();
+const loop = new Tone.Loop((time) => {
+  synth.triggerAttackRelease("C4", "8n", time);
+}, "4n").start(0);
+Tone.Transport.start();
+```
+
+## Best Practices
+
+1. Always start audio context with user interaction (Tone.start())
+2. Clean up and dispose of unused Tone.js objects
+3. Use Tone.Transport for precise timing instead of setTimeout
+4. Connect audio nodes to the destination or other nodes
+5. Use Tone.js time notation (e.g., '4n', '8t') for musical timing 
