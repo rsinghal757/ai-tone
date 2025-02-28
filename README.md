@@ -1,65 +1,61 @@
-# AiTone - AI-Powered Music Code Editor
+# AiTone - AI-powered Music Code Editor
 
-AiTone is a web application that allows users to write and execute music code in the browser using Tone.js, with the ability to modify the code using natural language requests processed by AI.
+AiTone is an interactive web application that allows you to create and modify music code using AI and Tone.js.
 
 ## Features
 
-- **Monaco Editor** for writing JavaScript-based music code with syntax highlighting
-- **Tone.js Integration** for music synthesis and playback in the browser
-- **AI-Powered Modifications** using OpenAI's API to transform your music based on natural language requests
-- **Example Suggestions** to help you get started with common modifications
+- Interactive code editor with syntax highlighting
+- AI-powered code modification based on natural language requests
+- Interactive piano keyboard for testing notes
+- Example templates for common music patterns
 
-## Getting Started
+## Live Demo
 
-### Prerequisites
+Visit [ai-tone.vercel.app](https://ai-tone.vercel.app) to try it out!
 
-- Node.js (v14 or higher)
-- npm or yarn
-- OpenAI API key
+## Local Development
 
-### Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/aitone.git
-   cd aitone
-   ```
-
+1. Clone the repository
 2. Install dependencies:
    ```
    npm install
    ```
-
-3. Set up your environment variables:
-   - Create a `.env` file in the root directory
-   - Add your OpenAI API key:
-     ```
-     OPENAI_API_KEY=your_api_key_here
-     MODEL=gpt-4o-mini
-     ```
-
-4. Scrape Tone.js documentation (optional but recommended):
+3. Create a `.env` file with the following variables:
    ```
-   npm run scrape
+   OPENAI_API_KEY=your_openai_api_key
+   MODEL=google/gemini-flash-1.5
+   PORT=3000
    ```
-
-5. Start the server:
+4. Start the server:
    ```
    npm start
    ```
+5. Open `http://localhost:3000` in your browser
 
-6. Open your browser and navigate to:
-   ```
-   http://localhost:3000
-   ```
+## Deploying to Vercel
 
-## How to Use
+1. Fork this repository
+2. Create a new project in Vercel and connect it to your forked repository
+3. Add the following environment variables in the Vercel project settings:
+   - `OPENAI_API_KEY`: Your OpenAI API key
+   - `MODEL`: The model to use (e.g., `google/gemini-flash-1.5`)
+4. Deploy the project
 
-1. **Write Music Code**: Use the Monaco editor to write JavaScript code using Tone.js.
-2. **Run Your Code**: Click the "Run" button to execute your code and hear the music.
-3. **Modify with Natural Language**: Enter a description of how you want to modify the music in the input field.
-4. **Apply AI Modifications**: Click "Modify" to have the AI update your code based on your request.
-5. **Try Examples**: Click on any of the example suggestions to quickly try different modifications.
+## How It Works
+
+1. Enter a natural language request in the input field (e.g., "Add a drum beat")
+2. Click "Modify" to send the request to the AI
+3. The AI will modify the code based on your request
+4. Click "Run" to play the modified music
+5. Click "Stop" to stop the music
+
+## Technologies Used
+
+- [Tone.js](https://tonejs.github.io/) - Web Audio framework
+- [Monaco Editor](https://microsoft.github.io/monaco-editor/) - Code editor
+- [Express](https://expressjs.com/) - Web server
+- [OpenAI API](https://openai.com/) - AI code generation
+- [Vercel](https://vercel.com/) - Deployment platform
 
 ## Project Structure
 
@@ -67,13 +63,6 @@ AiTone is a web application that allows users to write and execute music code in
 - `server.js` - Express server for handling API requests
 - `utils/scraper.js` - Utility for scraping Tone.js documentation
 - `data/tone-docs.txt` - Processed Tone.js documentation for the AI system prompt
-
-## Technologies Used
-
-- **Frontend**: HTML, CSS, JavaScript, Monaco Editor, Tone.js
-- **Backend**: Node.js, Express
-- **AI**: OpenAI API (gpt-4o-mini model)
-- **Documentation Scraping**: Axios, Cheerio
 
 ## License
 

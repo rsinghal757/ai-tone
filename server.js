@@ -14,6 +14,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('./'));
 
+// Add middleware to handle Vercel deployment
+app.use((req, res, next) => {
+  // Set CORS headers for Vercel deployment
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
+// Add a health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', environment: process.env.VERCEL ? 'vercel' : 'development' });
+});
+
 // Initialize OpenAI client
 const openai = new OpenAI({
   baseURL: 'https://openrouter.ai/api/v1',
@@ -23,13 +37,21 @@ const openai = new OpenAI({
 // Load Tone.js documentation for the system prompt
 let toneJsDocs = '';
 try {
-  const docsPath = path.join(__dirname, 'data', 'tone-docs.txt');
-  if (fs.existsSync(docsPath)) {
-    toneJsDocs = fs.readFileSync(docsPath, 'utf8');
-    console.log('Loaded Tone.js documentation for system prompt');
+  // In Vercel environment, use a simplified approach
+  if (process.env.VERCEL) {
+    console.log('Running on Vercel - using simplified Tone.js documentation');
+    toneJsDocs = 'Tone.js is a Web Audio framework for creating interactive music in the browser. ' +
+      'It provides a simple API for creating and manipulating audio in the browser, ' +
+      'with support for synthesizers, effects, scheduling, and more.';
   } else {
-    console.warn('Tone.js documentation not found. Run "npm run scrape" to generate it.');
-    toneJsDocs = 'Tone.js is a Web Audio framework for creating interactive music in the browser.';
+    const docsPath = path.join(__dirname, 'data', 'tone-docs.txt');
+    if (fs.existsSync(docsPath)) {
+      toneJsDocs = fs.readFileSync(docsPath, 'utf8');
+      console.log('Loaded Tone.js documentation for system prompt');
+    } else {
+      console.warn('Tone.js documentation not found. Run "npm run scrape" to generate it.');
+      toneJsDocs = 'Tone.js is a Web Audio framework for creating interactive music in the browser.';
+    }
   }
 } catch (error) {
   console.error('Error loading Tone.js documentation:', error);
@@ -100,6 +122,12 @@ Remember to follow best practices:
 
 // Function to find an available port
 function startServer(port) {
+  // In Vercel environment, we don't need to start a server
+  if (process.env.VERCEL) {
+    console.log('Running on Vercel - no need to start server');
+    return;
+  }
+  
   const server = app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
     
@@ -131,4 +159,7 @@ function startServer(port) {
 }
 
 // Start the server with port fallback
-startServer(PORT); 
+startServer(PORT);
+
+// Export the Express app for Vercel serverless functions
+module.exports = app; 

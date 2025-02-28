@@ -4,7 +4,8 @@
   "description": "AI-powered music code editor using Tone.js",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo 'Build completed'"
   },
   "dependencies": {
     "cors": "^2.8.5",
