@@ -5,243 +5,282 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AiTone - Music Code Editor</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #252525;
+            --accent-primary: #bb86fc;
+            --accent-secondary: #03dac6;
+            --danger: #cf6679;
+            --border-color: #333;
+            --text-primary: #e1e1e1;
+            --text-secondary: #a0a0a0;
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            background-color: #1e1e1e;
-            color: #f0f0f0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             height: 100vh;
             overflow: hidden;
         }
+        
         .container {
             display: grid;
             height: 100vh;
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto 60px 1fr 1fr;
-            gap: 10px;
-            padding: 10px;
-            box-sizing: border-box;
+            grid-template-columns: 60% 40%;
+            grid-template-rows: 48px 1fr 200px;
+            gap: 1px;
+            background-color: var(--border-color);
         }
+        
         .header {
             grid-column: 1 / -1;
             grid-row: 1;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 10px;
-            background-color: #2d2d2d;
-            border-radius: 4px;
-            height: 50px;
+            padding: 0 16px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
         }
+        
         h1 {
-            color: #bb86fc;
-            margin: 0;
-            font-size: 1.5rem;
+            color: var(--accent-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
+        
         .transport-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
+        
         #editor-container {
             grid-column: 1;
-            grid-row: 3;
-            border: 1px solid #444;
-            border-radius: 4px;
+            grid-row: 2;
+            background-color: var(--bg-secondary);
             overflow: hidden;
         }
+        
         .waveform-container {
             grid-column: 2;
-            grid-row: 3;
-            border: 1px solid #444;
-            border-radius: 4px;
-            background-color: #2d2d2d;
+            grid-row: 2;
+            background-color: var(--bg-tertiary);
             position: relative;
             overflow: hidden;
+            padding: 16px;
         }
+        
         #waveform {
             width: 100%;
             height: 100%;
+            background-color: var(--bg-secondary);
+            border-radius: 4px;
         }
+        
         .nlp-container {
             grid-column: 1;
-            grid-row: 4;
+            grid-row: 3;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-            background-color: #2d2d2d;
-            border-radius: 4px;
+            gap: 12px;
+            padding: 16px;
+            background-color: var(--bg-secondary);
         }
-        .examples {
+        
+        .piano-container {
             grid-column: 2;
-            grid-row: 4;
-            padding: 10px;
-            background-color: #2d2d2d;
-            border-radius: 4px;
-            display: grid;
-            grid-template-rows: auto 1fr;
-            gap: 10px;
-        }
-        #nlp-input {
-            flex: 1;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #444;
-            background-color: #1e1e1e;
-            color: #f0f0f0;
-            font-size: 1rem;
-        }
-        .button-group {
+            grid-row: 3;
+            background-color: var(--bg-secondary);
+            padding: 16px;
             display: flex;
-            gap: 10px;
+            flex-direction: column;
+            gap: 12px;
         }
+        
+        #nlp-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        
+        #nlp-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+        
         button {
             padding: 8px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+        
         #modify-btn {
-            background-color: #bb86fc;
+            background-color: var(--accent-primary);
             color: #000;
         }
+        
         #run-btn {
-            background-color: #03dac6;
+            background-color: var(--accent-secondary);
             color: #000;
         }
+        
         #stop-btn {
-            background-color: #cf6679;
+            background-color: var(--danger);
             color: #000;
         }
+        
         button:hover {
-            opacity: 0.9;
+            filter: brightness(1.1);
+            transform: translateY(-1px);
         }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
+        
         #status {
-            padding: 5px;
-            font-size: 0.9rem;
-            color: #bb86fc;
+            padding: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
         }
+        
         #loading {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 20px;
-            background-color: #2d2d2d;
-            border-radius: 4px;
-            font-weight: bold;
-            color: #bb86fc;
+            padding: 24px 32px;
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            font-weight: 500;
+            color: var(--accent-primary);
             z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .examples h3 {
-            margin: 0;
-            color: #bb86fc;
-        }
-        .example-item {
-            cursor: pointer;
-            color: #03dac6;
-            padding: 5px;
-            border-radius: 4px;
-        }
-        .example-item:hover {
-            background-color: #1e1e1e;
-        }
-        /* Piano keyboard styles */
-        .piano-container {
-            grid-column: 2;
-            grid-row: 4;
-            background-color: #2d2d2d;
-            border-radius: 4px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-        }
-        .piano-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .piano-header h3 {
-            margin: 0;
-            color: #bb86fc;
-        }
-        .piano-toggle {
-            color: #03dac6;
-            cursor: pointer;
-            text-decoration: underline;
-        }
+        
         .piano {
-            height: 120px;
+            height: 140px;
             display: flex;
             position: relative;
-            margin-bottom: 20px;
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            padding: 8px;
         }
+        
         .white-key {
             flex: 1;
-            background-color: white;
-            border: 1px solid #444;
+            background-color: #fff;
+            border: 1px solid var(--border-color);
             border-radius: 0 0 4px 4px;
             position: relative;
             z-index: 1;
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            padding-bottom: 5px;
+            padding-bottom: 8px;
             color: #333;
             font-size: 0.7rem;
             cursor: pointer;
+            transition: background-color 0.1s;
         }
+        
         .black-key {
             position: absolute;
-            background-color: #333;
+            background-color: #000;
             width: 6%;
-            height: 60%;
+            height: 65%;
             z-index: 2;
-            border-radius: 0 0 4px 4px;
+            border-radius: 0 0 3px 3px;
             cursor: pointer;
             top: 0;
-            transform: translateX(-50%); /* Center the black key on its position */
-            border: 1px solid #222;
+            transform: translateX(-50%);
+            transition: background-color 0.1s;
         }
-        .black-key-label {
+        
+        .key-binding {
             position: absolute;
-            bottom: 5px;
-            color: white;
-            font-size: 0.6rem;
-            width: 100%;
-            text-align: center;
+            top: 6px;
+            left: 6px;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 500;
         }
+        
+        .black-key .key-binding {
+            color: rgba(255, 255, 255, 0.7);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
         .white-key:hover {
             background-color: #f0f0f0;
         }
+        
         .black-key:hover {
-            background-color: #555;
+            background-color: #222;
         }
+        
         .white-key.active {
-            background-color: #bb86fc;
+            background-color: var(--accent-primary);
             color: white;
         }
+        
         .black-key.active {
-            background-color: #03dac6;
+            background-color: var(--accent-secondary);
         }
-        /* Key binding display */
-        .key-binding {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            font-size: 0.6rem;
-            color: #666;
-            background-color: rgba(255, 255, 255, 0.2);
-            padding: 2px 4px;
-            border-radius: 2px;
+        
+        .example-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        
+        .example-item {
+            cursor: pointer;
+            color: var(--accent-secondary);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            background-color: var(--bg-tertiary);
+        }
+        
+        .example-item:hover {
+            background-color: var(--bg-primary);
+            transform: translateX(4px);
         }
     </style>
 </head>
@@ -250,12 +289,12 @@
         <div class="header">
             <h1>AiTone</h1>
             <div class="transport-controls">
-                <button id="run-btn">Run</button>
-                <button id="stop-btn">Stop</button>
+                <button id="run-btn">▶ Run</button>
+                <button id="stop-btn">■ Stop</button>
             </div>
         </div>
         
-        <div id="loading">Loading libraries, please wait...</div>
+        <div id="loading">Initializing AiTone...</div>
         
         <div id="editor-container"></div>
         
@@ -266,23 +305,12 @@
         <div class="nlp-container">
             <input type="text" id="nlp-input" placeholder="Describe how to modify the music (e.g., 'Make it faster', 'Add a bass line')">
             <div class="button-group">
-                <button id="modify-btn">Modify</button>
+                <button id="modify-btn">✨ Modify</button>
             </div>
             <div id="status"></div>
         </div>
         
-        <div class="examples">
-            <h3>Examples</h3>
-            <div class="example-list">
-                <div class="example-item" data-prompt="Add a drum beat">Add a drum beat</div>
-                <div class="example-item" data-prompt="Make it sound like a jazz piano">Make it sound like a jazz piano</div>
-                <div class="example-item" data-prompt="Add reverb and delay effects">Add reverb and delay effects</div>
-                <div class="example-item" data-prompt="Create a looping bass line">Create a looping bass line</div>
-                <div class="example-item" data-prompt="Make it sound like an 80s synth">Make it sound like an 80s synth</div>
-            </div>
-        </div>
-        
-        <div class="piano-container" id="piano-container">
+        <div class="piano-container">
             <div class="piano" id="piano">
                 <!-- Piano keys will be generated by JavaScript -->
             </div>
@@ -365,8 +393,6 @@ Tone.Transport.start();
         const editorContainer = document.getElementById('editor-container');
         const loadingEl = document.getElementById('loading');
         const exampleItems = document.querySelectorAll('.example-item');
-        const pianoContainer = document.getElementById('piano-container');
-        const pianoToggle = document.getElementById('piano-toggle');
         const piano = document.getElementById('piano');
         
         // Server URL - Detect environment and use appropriate URL
@@ -495,11 +521,6 @@ Tone.Transport.start();
         require(['vs/editor/editor.main'], function() {
             // Make sure Tone is defined
             if (typeof Tone !== 'undefined') {
-                // Hide loading, show editor
-                loadingEl.style.display = 'none';
-                editorContainer.style.display = 'block';
-                pianoContainer.style.display = 'block';
-                
                 // Initialize editor
                 window.editor = monaco.editor.create(editorContainer, {
                     value: defaultCode,
@@ -516,9 +537,22 @@ Tone.Transport.start();
                 // Initialize piano keyboard
                 initPiano();
                 
-                statusEl.textContent = "Ready! Click 'Run' to play the default music.";
+                // Initialize waveform visualization
+                initWaveform();
+                
+                // Hide loading screen
+                if (loadingEl) {
+                    loadingEl.style.display = 'none';
+                }
+                
+                // Update status
+                if (statusEl) {
+                    statusEl.textContent = "Ready! Click 'Run' to play the default music.";
+                }
             } else {
-                statusEl.textContent = "Error: Tone.js failed to load. Please refresh the page.";
+                if (statusEl) {
+                    statusEl.textContent = "Error: Tone.js failed to load. Please refresh the page.";
+                }
             }
         });
         
@@ -794,18 +828,15 @@ Tone.Transport.start();
             draw();
         }
         
-        // Toggle piano visibility
-        pianoToggle.addEventListener('click', () => {
-            const isVisible = piano.style.display !== 'none';
-            piano.style.display = isVisible ? 'none' : 'flex';
-            pianoToggle.textContent = isVisible ? 'Show Piano' : 'Hide Piano';
-        });
-        
         // Stop button functionality
-        stopBtn.addEventListener('click', () => {
-            stopAllSounds();
-            statusEl.textContent = "Music stopped.";
-        });
+        if (stopBtn) {
+            stopBtn.addEventListener('click', () => {
+                stopAllSounds();
+                if (statusEl) {
+                    statusEl.textContent = "Music stopped.";
+                }
+            });
+        }
         
         // Function to stop all sounds
         function stopAllSounds() {
