@@ -103,7 +103,7 @@ Remember to follow best practices:
         },
         {
           role: 'user',
-          content: `Current code:\n\n${code}\n\nModification request: ${request}\n\nPlease modify the code according to this request. Return ONLY the modified code.`
+          content: `Current code:\n\n${code}\n\nModification request: ${request}\n\nPlease modify the code according to this request. Return the complete code after changes everytime (IMPORTANT - Complete code, not just the changes, and tone.js code only).`
         }
       ],
       temperature: 0.1

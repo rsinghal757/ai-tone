@@ -547,72 +547,122 @@ Tone.Transport.start();
         let activeObjects = [];
         
         // Default Tone.js code
-        const defaultCode = `const synth = new Tone.PolySynth().toDestination();
-synth.set({
-    oscillator: { type: 'triangle' }, // Triangle wave for a soft tone
-    envelope: { 
-        attack: 0.005,  // Quick attack for note onset
-        decay: 0.1,     // Short decay
-        sustain: 0.3,   // Medium sustain level
-        release: 1      // Smooth release for a piano-like fade
-    }
-});
+        const defaultCode = `// --- FX chain ---
+const reverb   = new Tone.Reverb({ decay: 6, preDelay: 0.03, wet: 0.45 }).toDestination();
+const delay    = new Tone.FeedbackDelay("8n", 0.28).connect(reverb);
+const widener  = new Tone.StereoWidener(0.6).connect(delay);
 
-// Add reverb for depth and ambiance
-const reverb = new Tone.Reverb(2).toDestination();
-synth.connect(reverb);
+// --- Instruments ---
+const guitar = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: "triangle" },
+    envelope:   { attack: 0.04, release: 3 }
+}).connect(widener);
 
-// Set tempo to 120 BPM
-Tone.Transport.bpm.value = 120;
+const bass = new Tone.MonoSynth({
+    oscillator: { type: "sine" },
+    filter:     { Q: 1, type: "lowpass", rolloff: -24 },
+    envelope:       { attack: 0.01, decay: 0.3, sustain: 0.5, release: 1.2 },
+    filterEnvelope: { attack: 0.01, baseFrequency: 60, octaves: 2.5 }
+}).connect(reverb);
 
-// Define the chord progression: C, F, G, C (I-IV-V-I in C major)
+const kick = new Tone.MembraneSynth({
+    pitchDecay: 0.02,
+    octaves: 5,
+    envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.2 }
+}).connect(reverb);
+
+const snare = new Tone.NoiseSynth({
+    noise: { type: "white" },
+    envelope: { attack: 0.001, decay: 0.18, sustain: 0 }
+}).connect(reverb);
+
+const hat = new Tone.MetalSynth({
+    frequency: 9000,
+    envelope: { attack: 0.001, decay: 0.05, release: 0.02 },
+    harmonicity: 5.1,
+    modulationIndex: 32,
+    resonance: 4000
+}).connect(reverb);
+
+// --- Data ---
 const chords = [
-    { time: '0:0', notes: ['C3', 'E3', 'G3'], duration: '1m' }, // C major
-    { time: '1:0', notes: ['F3', 'A3', 'C4'], duration: '1m' }, // F major
-    { time: '2:0', notes: ['G3', 'B3', 'D4'], duration: '1m' }, // G major
-    { time: '3:0', notes: ['C3', 'E3', 'G3'], duration: '1m' }, // C major
+    { time: "0:0", notes: ["A3","C#4","E4","G#4"], duration: "1m" }, // Amaj7
+    { time: "1:0", notes: ["F#3","A3","C#4","E4"], duration: "1m" }, // F#m7
+    { time: "2:0", notes: ["D3","F#3","A3","C#4"], duration: "1m" }, // Dmaj7
+    { time: "3:0", notes: ["E3","G#3","B3","D#4"], duration: "1m" }  // Emaj7
 ];
 
-// Define the melody using quarter notes, outlining chord tones
-const melody = [
-    // Measure 1: Over C chord (C, E, G)
-    { time: '0:0', note: 'C4', duration: '4n' },
-    { time: '0:1', note: 'E4', duration: '4n' },
-    { time: '0:2', note: 'G4', duration: '4n' },
-    { time: '0:3', note: 'C5', duration: '4n' },
-    // Measure 2: Over F chord (F, A, C)
-    { time: '1:0', note: 'F4', duration: '4n' },
-    { time: '1:1', note: 'A4', duration: '4n' },
-    { time: '1:2', note: 'C5', duration: '4n' },
-    { time: '1:3', note: 'F5', duration: '4n' },
-    // Measure 3: Over G chord (G, B, D)
-    { time: '2:0', note: 'G4', duration: '4n' },
-    { time: '2:1', note: 'B4', duration: '4n' },
-    { time: '2:2', note: 'D5', duration: '4n' },
-    { time: '2:3', note: 'G5', duration: '4n' },
-    // Measure 4: Over C chord (C, G, E)
-    { time: '3:0', note: 'C5', duration: '4n' },
-    { time: '3:1', note: 'G4', duration: '4n' },
-    { time: '3:2', note: 'E4', duration: '4n' },
-    { time: '3:3', note: 'C4', duration: '4n' },
-];
-
-// Create Tone.Part for chords
-const chordPart = new Tone.Part((time, event) => {
-    synth.triggerAttackRelease(event.notes, event.duration, time);
+// --- Guitar part (light strums with humanized offsets) ---
+const guitarPart = new Tone.Part((time, event) => {
+    event.notes.forEach((n,i) => {
+        const offset = (Math.random()*0.04) - 0.02;
+        guitar.triggerAttackRelease(n, "2n", time + i*0.03 + offset);
+    });
 }, chords).start(0);
 
-// Create Tone.Part for melody
-const melodyPart = new Tone.Part((time, event) => {
-    synth.triggerAttackRelease(event.note, event.duration, time);
-}, melody).start(0);
+// --- Bass line (root–5th–6th–5th per bar) ---
+const bassSeq = new Tone.Sequence((time, step) => {
+    const roots = ["A1","F#1","D1","E1"];
+    const root  = roots[step];
+    const line  = [
+        root,
+        Tone.Frequency(root).transpose(7).toNote(),
+        Tone.Frequency(root).transpose(9).toNote(),
+        Tone.Frequency(root).transpose(7).toNote()
+    ];
+    line.forEach((note,i)=>bass.triggerAttackRelease(note,"8n",time + i*Tone.Time("8n")));
+}, [0,1,2,3], "1m").start(0);
 
-// Configure the transport to loop every 4 measures
-Tone.Transport.setLoopPoints(0, '4:0');
+// --- Drum loop ---
+const drumLoop = new Tone.Loop(time => {
+    kick.triggerAttackRelease("C2","8n", time);                         // kick on 1
+    hat.triggerAttackRelease("16n", time);                              // hat
+    hat.triggerAttackRelease("16n", time + Tone.Time("8n"));            // off‑hat
+    snare.triggerAttackRelease("16n", time + Tone.Time("2n"));          // snare on 3
+    hat.triggerAttackRelease("16n", time + Tone.Time("2n") + Tone.Time("8n"));
+}, "1m").start(0);
+
+// --- Lead synth & melody (A‑major scale) ---
+const lead = new Tone.Synth({
+  oscillator: { type: "sawtooth" },
+  envelope:   { attack: 0.02, decay: 0.1, sustain: 0.3, release: 1.5 }
+}).connect(widener);   // reuse the same FX chain for width + space
+
+// 4‑bar motif built from A‑major/Ionian (A B C# D E F# G#):
+const melodyEvents = [
+  // bar 1 (over Amaj7)
+  { time: "0:0:2", note: "C#5", dur: "8n" },
+  { time: "0:1:0", note: "B4",  dur: "8n" },
+  { time: "0:1:2", note: "A4",  dur: "4n" },
+
+  // bar 2 (over F#m7)
+  { time: "1:0:2", note: "A4",  dur: "8n" },
+  { time: "1:1:0", note: "C#5", dur: "8n" },
+  { time: "1:1:2", note: "E5",  dur: "4n" },
+
+  // bar 3 (over Dmaj7)
+  { time: "2:0:2", note: "G#4", dur: "8n" },
+  { time: "2:1:0", note: "B4",  dur: "8n" },
+  { time: "2:1:2", note: "D5",  dur: "4n" },
+
+  // bar 4 (over Emaj7)
+  { time: "3:0:2", note: "F#4", dur: "8n" },
+  { time: "3:1:0", note: "E4",  dur: "8n" },
+  { time: "3:1:2", note: "C#5", dur: "4n" }
+];
+
+const leadPart = new Tone.Part((time, ev) => {
+  lead.triggerAttackRelease(ev.note, ev.dur, time);
+}, melodyEvents).start(0);
+
+
+// --- Transport ---
+Tone.Transport.bpm.value = 90;
+Tone.Transport.swing     = 0.55;
+Tone.Transport.setLoopPoints(0, "4:0");
 Tone.Transport.loop = true;
 
-// Start the transport
-Tone.Transport.start();
+Tone.Transport.start(); // Removed this line
 `;
         
         // Helper function for safely creating and playing Tone.Player objects
