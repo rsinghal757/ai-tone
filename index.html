@@ -311,11 +311,11 @@
             height: 60%; /* Slightly shorter */
             z-index: 2;
             border: 2px solid var(--border-color);
-            border-top: none;
+            border-top: none; /* Match white keys */
             border-radius: 0 0 4px 4px;
             cursor: pointer;
-            top: 0;
-            /* transform: translateX(-50%); // We'll set left position directly */
+            /* top: 0; Remove this to align with white keys inside padding */
+            transform: translateX(-50%); /* Add transform for centering */
             transition: background-color 0.1s;
             box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
             color: var(--bg-primary); /* Light text */
@@ -663,6 +663,7 @@ Tone.Transport.start();
                 // Resize editor on window resize
                 window.addEventListener('resize', () => {
                     editor.layout();
+                    initPiano(); // Redraw piano on resize for accurate positioning
                 });
                 
                 // Initialize piano keyboard
@@ -757,38 +758,58 @@ Tone.Transport.start();
                 });
             }
 
-            // Now position and add black keys
-            const whiteKeyWidth = 100 / allWhiteKeys.length;
+            // --- Black Key Positioning Logic ---
+            function positionBlackKeys() {
+                // Get all black keys after they are potentially in the DOM
+                const blackKeyElements = pianoEl.querySelectorAll('.black-key');
+                if (blackKeyElements.length !== allBlackKeysData.length) {
+                    console.warn('Mismatch between black key data and elements. Skipping positioning.');
+                    return;
+                }
+
+                allBlackKeysData.forEach(({ note, key, precedingWhiteKeyIndex }, i) => {
+                    const precedingWhiteKey = allWhiteKeys[precedingWhiteKeyIndex];
+                    const blackKeyEl = blackKeyElements[i]; // Get the corresponding DOM element
+                    
+                    if (!precedingWhiteKey || !blackKeyEl) return; // Safety check
+
+                    // Calculate the center of the gap in pixels
+                    // Position is relative to the piano container's padding box
+                    const gapCenterPx = precedingWhiteKey.offsetLeft + precedingWhiteKey.offsetWidth; 
+                    
+                    // Set left style in pixels
+                    blackKeyEl.style.left = `${gapCenterPx}px`;
+                    // CSS transform: translateX(-50%) will handle the centering
+                });
+            }
+            // --- End Black Key Positioning Logic ---
+
+            // Add black keys to DOM first (without left style initially)
             allBlackKeysData.forEach(({ note, key, precedingWhiteKeyIndex }) => {
-                const precedingWhiteKey = allWhiteKeys[precedingWhiteKeyIndex];
-                if (!precedingWhiteKey) return; // Safety check
+                 const keyEl = document.createElement('div');
+                 keyEl.className = 'black-key';
+                 keyEl.dataset.note = note;
+                 keyEl.dataset.key = key;
+ 
+                 const keyBindingEl = document.createElement('div');
+                 keyBindingEl.className = 'key-binding';
+                 keyBindingEl.textContent = key.toUpperCase();
+                 
+                 const noteLabelEl = document.createElement('div');
+                 noteLabelEl.className = 'note-label';
+                 noteLabelEl.textContent = note;
+ 
+                 keyEl.appendChild(keyBindingEl);
+                 keyEl.appendChild(noteLabelEl);
+                 pianoEl.appendChild(keyEl); // Add to DOM
+ 
+                 keyEl.addEventListener('mousedown', () => playNote(note));
+                 keyEl.addEventListener('mouseup', () => stopNote(note));
+             });
 
-                const keyEl = document.createElement('div');
-                keyEl.className = 'black-key';
-                keyEl.dataset.note = note;
-                keyEl.dataset.key = key;
-
-                // Position based on the preceding white key
-                const leftPosition = precedingWhiteKey.offsetLeft + precedingWhiteKey.offsetWidth - (keyEl.offsetWidth / 2); // Adjust logic if needed
-                // More robust positioning:
-                const blackKeyLeftPercent = (precedingWhiteKeyIndex + 1) * whiteKeyWidth - (whiteKeyWidth * 0.5 * 0.55); // Center black key over the gap
-                keyEl.style.left = `${blackKeyLeftPercent}%`;
-
-                const keyBindingEl = document.createElement('div');
-                keyBindingEl.className = 'key-binding';
-                keyBindingEl.textContent = key.toUpperCase();
-                
-                const noteLabelEl = document.createElement('div');
-                noteLabelEl.className = 'note-label';
-                noteLabelEl.textContent = note;
-
-                keyEl.appendChild(keyBindingEl); // Binding first
-                keyEl.appendChild(noteLabelEl); // Note second
-                pianoEl.appendChild(keyEl);
-
-                keyEl.addEventListener('mousedown', () => playNote(note));
-                keyEl.addEventListener('mouseup', () => stopNote(note));
-            });
+            // Position black keys after a brief timeout to ensure layout is calculated
+            // Alternatively, could use requestAnimationFrame
+            setTimeout(positionBlackKeys, 0);
 
             // Add keyboard event listeners
             document.addEventListener('keydown', handleKeyDown);
