@@ -5,16 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AiTone - Music Code Editor</title>
     <style>
+        /* Import a 'handwritten' font */
+        @import url('https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&display=swap');
+        
         :root {
-            --bg-primary: #121212;
-            --bg-secondary: #1e1e1e;
-            --bg-tertiary: #252525;
-            --accent-primary: #bb86fc;
-            --accent-secondary: #03dac6;
-            --danger: #cf6679;
-            --border-color: #333;
-            --text-primary: #e1e1e1;
-            --text-secondary: #a0a0a0;
+            /* Kraft paper and muted tones */
+            --bg-primary: #f5e1cb; /* Light kraft paper */
+            --bg-secondary: #e4ccb4; /* Slightly darker kraft */
+            --bg-tertiary: #d3b89d; /* Darker kraft */
+            --accent-primary: #e76f51; /* Coral/Orange */
+            --accent-secondary: #2a9d8f; /* Teal */
+            --danger: #d62828; /* Muted Red */
+            --border-color: #a0522d; /* Brown for borders */
+            --text-primary: #4a4a4a; /* Dark grey text */
+            --text-secondary: #6b6b6b; /* Lighter grey text */
+            --tape-color: rgba(255, 255, 160, 0.7); /* Semi-transparent yellow */
+            --ink-color: #333;
         }
         
         * {
@@ -24,23 +30,48 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            /* Use the imported 'Kalam' font */
+            font-family: 'Kalam', cursive;
             margin: 0;
             padding: 0;
             background-color: var(--bg-primary);
             color: var(--text-primary);
             height: 100vh;
             overflow: hidden;
+            /* Add a subtle paper texture */
+            background-image: url("data:image/svg+xml,%3Csvg width='6' height='6' viewBox='0 0 6 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%239C92AC' fill-opacity='0.1' fill-rule='evenodd'%3E%3Cpath d='M5 0h1L0 6V5zM6 5v1H5z'/%3E%3C/g%3E%3C/svg%3E");
         }
         
         .container {
             display: grid;
             height: 100vh;
             grid-template-columns: 60% 40%;
-            grid-template-rows: 48px 1fr 200px;
-            gap: 1px;
-            background-color: var(--border-color);
+            grid-template-rows: 56px 1fr 200px; /* Slightly taller header */
+            gap: 5px; /* Wider gap like tape */
+            background-color: transparent; /* Use body background */
+            border: 5px solid var(--border-color); /* Rough border for the whole container */
+            border-radius: 5px;
+            margin: 10px; /* Margin to show the border */
+            height: calc(100vh - 20px);
+            box-shadow: 5px 5px 10px rgba(0,0,0,0.2); /* Drop shadow */
+            position: relative; /* For pseudo-elements */
         }
+        
+        /* Add 'tape' effect to corners */
+        .container::before, .container::after {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 30px;
+            background-color: var(--tape-color);
+            transform: rotate(-45deg);
+            z-index: 10;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            border: 1px dashed rgba(0,0,0,0.2);
+        }
+        .container::before { top: -15px; left: -25px; }
+        .container::after { bottom: -15px; right: -25px; transform: rotate(135deg); }
+        
         
         .header {
             grid-column: 1 / -1;
@@ -48,21 +79,39 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 16px;
+            padding: 0 20px;
             background-color: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 3px dashed var(--border-color); /* Dashed border */
+            position: relative;
         }
+        
+        /* Header tape */
+        .header::before {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 25px;
+            background-color: var(--tape-color);
+            transform: rotate(5deg);
+            top: -10px;
+            left: 30px;
+            z-index: 1;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            border: 1px dashed rgba(0,0,0,0.2);
+        }
+        
         
         h1 {
             color: var(--accent-primary);
-            font-size: 1.25rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-size: 1.8rem; /* Larger, more prominent */
+            font-weight: 700; /* Bolder Kalam weight */
+            letter-spacing: 0px; /* Kalam looks better with less spacing */
+            text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
         }
         
         .transport-controls {
             display: flex;
-            gap: 8px;
+            gap: 12px; /* More space */
         }
         
         #editor-container {
@@ -70,6 +119,8 @@
             grid-row: 2;
             background-color: var(--bg-secondary);
             overflow: hidden;
+            border-right: 3px dashed var(--border-color);
+            padding: 5px; /* Padding for the editor */
         }
         
         .waveform-container {
@@ -79,6 +130,7 @@
             position: relative;
             overflow: hidden;
             padding: 16px;
+            border-left: 3px dashed var(--border-color);
         }
         
         #waveform {
@@ -86,6 +138,7 @@
             height: 100%;
             background-color: var(--bg-secondary);
             border-radius: 4px;
+            border: 2px solid var(--border-color); /* Border for waveform */
         }
         
         .nlp-container {
@@ -96,6 +149,8 @@
             gap: 12px;
             padding: 16px;
             background-color: var(--bg-secondary);
+            border-top: 3px dashed var(--border-color);
+            border-right: 3px dashed var(--border-color);
         }
         
         .piano-container {
@@ -106,72 +161,98 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            border-top: 3px dashed var(--border-color);
+            border-left: 3px dashed var(--border-color);
         }
         
         #nlp-input {
             width: 100%;
             padding: 12px;
             border-radius: 4px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-tertiary);
+            border: 2px solid var(--border-color); /* Thicker border */
+            background-color: var(--bg-primary); /* Use primary bg */
             color: var(--text-primary);
-            font-size: 0.9rem;
+            font-size: 1rem; /* Slightly larger font */
             transition: border-color 0.2s;
+            font-family: 'Kalam', cursive; /* Ensure input uses the font */
         }
         
         #nlp-input:focus {
             outline: none;
             border-color: var(--accent-primary);
+            box-shadow: 0 0 5px var(--accent-primary);
         }
         
         button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
+            padding: 10px 20px; /* Bigger buttons */
+            border: 2px solid var(--ink-color); /* Ink border */
+            border-radius: 8px; /* Rounded corners */
             cursor: pointer;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-weight: 700; /* Bold Kalam */
+            font-size: 1rem; /* Larger font */
+            transition: all 0.1s ease-in-out;
+            text-transform: none; /* No uppercase */
+            letter-spacing: 0px;
+            box-shadow: 2px 2px 0px var(--ink-color); /* Simple shadow */
+            background-color: #fff; /* White paper background */
+            color: var(--ink-color); /* Ink color text */
+            font-family: 'Kalam', cursive;
         }
         
         #modify-btn {
             background-color: var(--accent-primary);
-            color: #000;
+            color: #fff; /* White text on colored bg */
+            border-color: darken(var(--accent-primary), 10%);
+            box-shadow: 2px 2px 0px darken(var(--accent-primary), 10%);
         }
         
         #run-btn {
             background-color: var(--accent-secondary);
-            color: #000;
+            color: #fff;
+            border-color: darken(var(--accent-secondary), 10%);
+            box-shadow: 2px 2px 0px darken(var(--accent-secondary), 10%);
         }
         
         #stop-btn {
             background-color: var(--danger);
-            color: #000;
+            color: #fff;
+            border-color: darken(var(--danger), 10%);
+            box-shadow: 2px 2px 0px darken(var(--danger), 10%);
         }
         
         button:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
+            filter: brightness(1.05);
+            transform: translate(-1px, -1px); /* Move up-left */
+            box-shadow: 3px 3px 0px var(--ink-color);
         }
+        #modify-btn:hover { box-shadow: 3px 3px 0px darken(var(--accent-primary), 10%); }
+        #run-btn:hover { box-shadow: 3px 3px 0px darken(var(--accent-secondary), 10%); }
+        #stop-btn:hover { box-shadow: 3px 3px 0px darken(var(--danger), 10%); }
         
         button:active {
-            transform: translateY(0);
+            transform: translate(1px, 1px); /* Move down-right */
+            box-shadow: 1px 1px 0px var(--ink-color);
         }
+        #modify-btn:active { box-shadow: 1px 1px 0px darken(var(--accent-primary), 10%); }
+        #run-btn:active { box-shadow: 1px 1px 0px darken(var(--accent-secondary), 10%); }
+        #stop-btn:active { box-shadow: 1px 1px 0px darken(var(--danger), 10%); }
         
         button:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+            box-shadow: 2px 2px 0px var(--ink-color);
+            background-color: #eee;
         }
         
         #status {
-            padding: 8px;
-            font-size: 0.85rem;
+            padding: 10px;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             background-color: var(--bg-tertiary);
             border-radius: 4px;
+            border: 1px dashed var(--border-color);
+            min-height: 30px; /* Ensure it has some height */
         }
         
         #loading {
@@ -180,12 +261,14 @@
             left: 50%;
             transform: translate(-50%, -50%);
             padding: 24px 32px;
-            background-color: var(--bg-tertiary);
+            background-color: var(--bg-primary); /* Match background */
             border-radius: 8px;
-            font-weight: 500;
+            font-weight: 700;
             color: var(--accent-primary);
             z-index: 1000;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 3px solid var(--border-color);
+            font-size: 1.2rem;
         }
         
         .piano {
@@ -194,77 +277,105 @@
             position: relative;
             background-color: var(--bg-tertiary);
             border-radius: 4px;
-            padding: 8px;
+            padding: 10px; /* More padding */
+            border: 3px solid var(--border-color);
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15);
         }
         
         .white-key {
             flex: 1;
             background-color: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 0 0 4px 4px;
+            border: 2px solid var(--border-color); /* Thicker, brown border */
+            border-top: none; /* No top border */
+            border-radius: 0 0 5px 5px; /* Slightly more rounded */
             position: relative;
             z-index: 1;
             display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 8px;
-            color: #333;
-            font-size: 0.7rem;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: center; /* Center align */
+            justify-content: space-between; /* Space out elements */
+            padding: 8px 4px;
+            color: var(--ink-color);
+            font-size: 0.8rem; /* Bigger note label */
             cursor: pointer;
             transition: background-color 0.1s;
+            margin: 0 1px; /* Small gap */
+            box-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         
         .black-key {
             position: absolute;
-            background-color: #000;
-            width: 6%;
-            height: 65%;
+            background-color: var(--ink-color); /* Ink color */
+            width: 5.5%; /* Slightly narrower */
+            height: 60%; /* Slightly shorter */
             z-index: 2;
-            border-radius: 0 0 3px 3px;
+            border: 2px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
             cursor: pointer;
             top: 0;
             transform: translateX(-50%);
             transition: background-color 0.1s;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            color: var(--bg-primary); /* Light text */
+            display: flex;
+            align-items: flex-start; /* Align key binding to top */
+            justify-content: center;
         }
         
         .key-binding {
-            position: absolute;
-            top: 6px;
-            left: 6px;
-            font-size: 0.65rem;
+            /* Remove absolute positioning, integrate into flex */
+            font-size: 0.7rem;
             color: var(--text-secondary);
-            background-color: rgba(0, 0, 0, 0.1);
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-weight: 500;
+            background-color: transparent; /* No background */
+            padding: 0;
+            border-radius: 0;
+            font-weight: 400; /* Normal Kalam weight */
+            margin-top: 4px; /* Add some margin */
+            order: 1; /* Place below note label in white keys */
         }
         
         .black-key .key-binding {
-            color: rgba(255, 255, 255, 0.7);
-            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4px;
         }
         
+        .white-key .note-label { /* Class for note label */
+             font-size: 0.8rem;
+             font-weight: 700;
+             order: 2; /* Place below key binding */
+             margin-bottom: 5px;
+        }
+        
+        /* Remove black key label display if not needed */
+        .black-key-label { display: none; } 
+        
+        
         .white-key:hover {
-            background-color: #f0f0f0;
+            background-color: #fdf5e6; /* Creamy hover */
         }
         
         .black-key:hover {
-            background-color: #222;
+            background-color: #555; /* Lighter black hover */
         }
         
         .white-key.active {
-            background-color: var(--accent-primary);
+            background-color: var(--accent-secondary);
             color: white;
+            transform: translateY(1px);
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2);
         }
         
         .black-key.active {
-            background-color: var(--accent-secondary);
+            background-color: var(--accent-primary);
+            transform: translateY(1px);
+            box-shadow: inset 1px 1px 3px rgba(0,0,0,0.3);
         }
         
         .example-list {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px; /* Slightly more gap */
             margin-top: 8px;
         }
         
@@ -273,14 +384,18 @@
             color: var(--accent-secondary);
             padding: 8px 12px;
             border-radius: 4px;
-            font-size: 0.9rem;
+            font-size: 1rem; /* Match input font size */
             transition: all 0.2s;
             background-color: var(--bg-tertiary);
+            border: 1px dashed var(--border-color);
+            font-family: 'Kalam', cursive;
         }
         
         .example-item:hover {
-            background-color: var(--bg-primary);
+            background-color: var(--bg-secondary);
             transform: translateX(4px);
+            color: var(--accent-primary);
+            border-style: solid;
         }
     </style>
 </head>
@@ -596,6 +711,7 @@ Tone.Transport.start();
                 
                 // Add note label at bottom
                 const noteLabel = document.createElement('div');
+                noteLabel.className = 'note-label';
                 noteLabel.textContent = note + octave;
                 keyEl.appendChild(noteLabel);
                 
@@ -621,6 +737,7 @@ Tone.Transport.start();
                 
                 // Add note label at bottom
                 const noteLabel = document.createElement('div');
+                noteLabel.className = 'note-label';
                 noteLabel.textContent = note + octave2;
                 keyEl.appendChild(noteLabel);
                 
@@ -651,11 +768,6 @@ Tone.Transport.start();
                     keyBinding.textContent = key.toUpperCase();
                     keyEl.appendChild(keyBinding);
                     
-                    const label = document.createElement('div');
-                    label.className = 'black-key-label';
-                    label.textContent = note + octave;
-                    keyEl.appendChild(label);
-                    
                     keyEl.dataset.note = note + octave;
                     piano.appendChild(keyEl);
                     
@@ -681,11 +793,6 @@ Tone.Transport.start();
                     keyBinding.className = 'key-binding';
                     keyBinding.textContent = key.toUpperCase();
                     keyEl.appendChild(keyBinding);
-                    
-                    const label = document.createElement('div');
-                    label.className = 'black-key-label';
-                    label.textContent = note + octave2;
-                    keyEl.appendChild(label);
                     
                     keyEl.dataset.note = note + octave2;
                     piano.appendChild(keyEl);
@@ -835,6 +942,10 @@ Tone.Transport.start();
                 if (statusEl) {
                     statusEl.textContent = "Music stopped.";
                 }
+                // Ensure piano key highlights are removed
+                const keys = document.querySelectorAll('.white-key.active, .black-key.active');
+                keys.forEach(key => key.classList.remove('active'));
+                activeKeys.clear(); // Clear tracked active keys
             });
         }
         
@@ -978,8 +1089,12 @@ Tone.Transport.start();
                     const retryBtn = document.createElement('button');
                     retryBtn.textContent = "Retry";
                     retryBtn.style.marginLeft = "10px";
+                    // Add class for consistent styling
+                    retryBtn.classList.add('retry-button'); // Add specific class if needed or rely on general button styles
                     retryBtn.onclick = () => {
-                        statusEl.removeChild(retryBtn);
+                        if (statusEl.contains(retryBtn)) { // Check if still attached
+                           statusEl.removeChild(retryBtn);
+                        }
                         modifyBtn.click();
                     };
                     statusEl.appendChild(retryBtn);
