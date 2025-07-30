@@ -76,12 +76,12 @@ Remember to follow best practices:
 4. Connect audio nodes to the destination or other nodes
 5. Use Tone.js time notation for musical timing`;
     
-    console.log(`Using model: ${process.env.MODEL || 'gpt-3.5-turbo'}`);
+    console.log(`Using model: ${process.env.MODEL || 'openai/gpt-4o'}`);
     console.log(`Processing request: ${request.substring(0, 30)}...`);
     
     // Call OpenAI API
     const response = await openai.chat.completions.create({
-      model: process.env.MODEL || 'gpt-3.5-turbo',
+      model: process.env.MODEL || 'openai/gpt-4o',
       messages: [
         {
           role: 'system',
