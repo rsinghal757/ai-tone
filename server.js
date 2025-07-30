@@ -90,12 +90,12 @@ Remember to follow best practices:
 4. Connect audio nodes to the destination or other nodes
 5. Use Tone.js time notation for musical timing`;
     
-    console.log(`Using model: ${process.env.MODEL || 'google/gemini-flash-1.5'}`);
+    console.log(`Using model: ${process.env.MODEL || 'openai/gpt-4o'}`);
     console.log(`Processing request: ${request.substring(0, 30)}...`);
     
     // Call OpenAI API
     const response = await openai.chat.completions.create({
-      model: process.env.MODEL || 'google/gemini-flash-1.5',
+      model: process.env.MODEL || 'openai/gpt-4o',
       messages: [
         {
           role: 'system',
@@ -103,7 +103,7 @@ Remember to follow best practices:
         },
         {
           role: 'user',
-          content: `Current code:\n\n${code}\n\nModification request: ${request}\n\nPlease modify the code according to this request. Return ONLY the modified code.`
+          content: `Current code:\n\n${code}\n\nModification request: ${request}\n\nPlease modify the code according to this request. Return the complete code after changes everytime (IMPORTANT - Complete code, not just the changes, and tone.js code only).`
         }
       ],
       temperature: 0.1
