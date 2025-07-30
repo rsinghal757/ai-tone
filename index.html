@@ -923,8 +923,8 @@ Tone.Transport.start(); // Removed this line
         function playNote(note) {
             if (typeof Tone === 'undefined') return;
             
-            // Create a temporary synth if it doesn't exist
-            if (!window.pianoSynth) {
+            // Create a temporary synth if it doesn't exist or was disposed
+            if (!window.pianoSynth || window.pianoSynth.disposed) {
                 window.pianoSynth = new Tone.PolySynth(Tone.Synth, {
                     oscillator: {
                         type: "triangle"
@@ -948,7 +948,7 @@ Tone.Transport.start(); // Removed this line
         
         // Function to stop a note
         function stopNote(note) {
-            if (window.pianoSynth) {
+            if (window.pianoSynth && !window.pianoSynth.disposed) {
                 window.pianoSynth.triggerRelease(note);
             }
         }
@@ -1046,6 +1046,11 @@ Tone.Transport.start(); // Removed this line
             });
             
             activeObjects = [];
+            
+            // Clear piano synth reference so it gets recreated next time
+            if (window.pianoSynth) {
+                window.pianoSynth = null;
+            }
             
             // Reset any buffer errors
             Tone.context.resume();

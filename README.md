@@ -23,7 +23,7 @@ Visit [aitone.netlify.app](https://aitone.netlify.app) to try it out!
 3. Create a `.env` file with the following variables:
    ```
    OPENAI_API_KEY=your_openai_api_key
-   MODEL=google/gemini-flash-1.5
+   MODEL=gpt-3.5-turbo
    ```
 4. Start the development server with Netlify CLI:
    ```
@@ -37,7 +37,7 @@ Visit [aitone.netlify.app](https://aitone.netlify.app) to try it out!
 2. Create a new site in Netlify and connect it to your forked repository
 3. Add the following environment variables in the Netlify site settings:
    - `OPENAI_API_KEY`: Your OpenAI API key
-   - `MODEL`: The model to use (e.g., `google/gemini-flash-1.5`)
+   - `MODEL`: The OpenAI model to use (e.g., `gpt-3.5-turbo`, `gpt-4`, `gpt-4-turbo`)
 4. Deploy the site
 
 ### Netlify Deployment Steps
